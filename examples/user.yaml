@@ -1,0 +1,13 @@
+entity: User
+table: users
+
+fields:
+  id:
+    type: int
+    primary_key: true
+  email:
+    type: str
+    unique: true
+  is_active:
+    type: bool
+    default: true

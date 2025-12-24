@@ -1,0 +1,2 @@
+[console_scripts]
+crudgen = crudgen.cli:app
