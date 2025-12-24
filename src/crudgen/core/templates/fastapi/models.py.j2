@@ -1,0 +1,25 @@
+from __future__ import annotations
+
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import String, Boolean, Integer
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class {{ ctx.entity }}(Base):
+    __tablename__ = "{{ ctx.table }}"
+
+{% for name, spec in ctx.fields %}
+{% if name == "id" %}
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+{% elif spec.type == "str" %}
+    {{ name }}: Mapped[str] = mapped_column(String, unique={{ "True" if spec.unique else "False" }}, nullable={{ "True" if spec.nullable else "False" }})
+{% elif spec.type == "bool" %}
+    {{ name }}: Mapped[bool] = mapped_column(Boolean, nullable={{ "True" if spec.nullable else "False" }}, default={{ spec.default if spec.default is not none else "None" }})
+{% else %}
+    # TODO: type={{ spec.type }}
+    {{ name }} = mapped_column(nullable={{ "True" if spec.nullable else "False" }})
+{% endif %}
+{% endfor %}

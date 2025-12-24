@@ -1,0 +1,19 @@
+from __future__ import annotations
+
+from pydantic import BaseModel
+
+
+class {{ ctx.entity }}Base(BaseModel):
+{% for name, spec in ctx.fields %}
+{% if name != "id" %}
+    {{ name }}: {{ "str" if spec.type == "str" else "bool" if spec.type == "bool" else "int" if spec.type == "int" else "object" }}
+{% endif %}
+{% endfor %}
+
+
+class {{ ctx.entity }}Create({{ ctx.entity }}Base):
+    pass
+
+
+class {{ ctx.entity }}Read({{ ctx.entity }}Base):
+    id: int

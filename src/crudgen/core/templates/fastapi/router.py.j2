@@ -1,0 +1,15 @@
+from __future__ import annotations
+
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/{{ ctx.table }}", tags=["{{ ctx.entity }}"])
+
+
+@router.get("/", summary="List {{ ctx.table }}")
+def list_{{ ctx.table }}():
+    return []
+
+
+@router.post("/", summary="Create {{ ctx.entity }}")
+def create_{{ ctx.table }}():
+    return {"status": "ok"}
