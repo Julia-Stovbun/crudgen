@@ -11,7 +11,9 @@ app = typer.Typer(no_args_is_help=True)
 def main(
     config_path: str = typer.Argument(..., help="Path to YAML/JSON config"),
     out: str = typer.Option("out", "--out", "-o", help="Output directory"),
-    overwrite: bool = typer.Option(False, "--overwrite", help="Overwrite output files if they exist"),
+    overwrite: bool = typer.Option(
+        False, "--overwrite", help="Overwrite output files if they exist"
+    ),
 ) -> None:
     try:
         cfg = load_config(config_path)
