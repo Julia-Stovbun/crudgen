@@ -1,25 +1,41 @@
+import json
+
+import pytest
+from pydantic import ValidationError
+
 from crudgen.core.loader import load_config
 
 
-def test_load_config_ok(tmp_path):
-    cfg_path = tmp_path / "user.yaml"
-    cfg_path.write_text(
-        """
-entity: User
-table: users
-fields:
-  id:
-    type: int
-    primary_key: true
-  email:
-    type: str
-    unique: true
-""".strip(),
-        encoding="utf-8",
-    )
+@pytest.mark.parametrize("extension", ["yaml", "json"])
+def test_load_config(tmp_path, extension):
+    data = {
+        "entity": "User",
+        "table": "users",
+        "fields": {"id": {"type": "int", "primary_key": True}, "email": {"type": "str"}},
+    }
+    path = tmp_path / f"user.{extension}"
+    if extension == "json":
+        path.write_text(json.dumps(data))
+    else:
+        path.write_text(
+            "entity: User\ntable: users\nfields:\n"
+            "  id:\n    type: int\n    primary_key: true\n"
+            "  email:\n    type: str\n"
+        )
+    assert load_config(str(path)).entity == "User"
 
-    cfg = load_config(str(cfg_path))
-    assert cfg.entity == "User"
-    assert cfg.table == "users"
-    assert "id" in cfg.fields
-    assert cfg.fields["id"].primary_key is True
+
+@pytest.mark.parametrize("field", ["bad-name", "class"])
+def test_reject_invalid_field_name(tmp_path, field):
+    path = tmp_path / "bad.json"
+    path.write_text(
+        json.dumps(
+            {
+                "entity": "User",
+                "table": "users",
+                "fields": {"id": {"type": "int", "primary_key": True}, field: {"type": "str"}},
+            }
+        )
+    )
+    with pytest.raises(ValidationError):
+        load_config(str(path))

@@ -1,0 +1,35 @@
+from __future__ import annotations
+
+from models import {{ cfg.entity }}
+from schemas import {{ cfg.entity }}Create
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+
+def list_items(db: Session) -> list[{{ cfg.entity }}]:
+    return list(db.scalars(select({{ cfg.entity }})).all())
+
+
+def get_item(db: Session, item_id: int) -> {{ cfg.entity }} | None:
+    return db.get({{ cfg.entity }}, item_id)
+
+
+def create_item(db: Session, payload: {{ cfg.entity }}Create) -> {{ cfg.entity }}:
+    item = {{ cfg.entity }}(**payload.model_dump())
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+def update_item(db: Session, item: {{ cfg.entity }}, payload: {{ cfg.entity }}Create) -> {{ cfg.entity }}:
+    for field, value in payload.model_dump().items():
+        setattr(item, field, value)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+def delete_item(db: Session, item: {{ cfg.entity }}) -> None:
+    db.delete(item)
+    db.commit()
