@@ -1,0 +1,22 @@
+from __future__ import annotations
+
+{% if "datetime" in field_types -%}
+from datetime import datetime
+
+{% endif -%}
+from pydantic import BaseModel, ConfigDict
+
+
+class {{ cfg.entity }}Base(BaseModel):
+{% for name, spec in cfg.fields.items() if name != "id" %}
+    {{ name }}: {% if spec.type == "datetime" %}datetime{% else %}{{ spec.type }}{% endif %}{% if spec.nullable %} | None{% endif %}{% if spec.default is not none %} = {{ spec.default | pyrepr }}{% elif spec.nullable %} = None{% endif %}
+{% endfor %}
+
+class {{ cfg.entity }}Create({{ cfg.entity }}Base):
+    pass
+
+
+class {{ cfg.entity }}Read({{ cfg.entity }}Base):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int

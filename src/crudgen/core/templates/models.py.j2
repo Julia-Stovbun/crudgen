@@ -1,0 +1,28 @@
+from __future__ import annotations
+
+{% if "datetime" in field_types -%}
+from datetime import datetime
+
+{% endif -%}
+from sqlalchemy import {{ sql_imports | join(", ") }}
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class {{ cfg.entity }}(Base):
+    __tablename__ = {{ cfg.table | tojson }}
+
+{% for name, spec in cfg.fields.items() %}
+    {{ name }}: Mapped[{% if spec.type == "datetime" %}datetime{% else %}{{ spec.type }}{% endif %}{% if spec.nullable %} | None{% endif %}] = mapped_column(
+        {{ {"int": "Integer", "str": "String", "bool": "Boolean", "float": "Float", "datetime": "DateTime"}[spec.type] }},
+        primary_key={{ spec.primary_key }},
+        unique={{ spec.unique }},
+        nullable={{ spec.nullable }},
+{% if spec.default is not none %}
+        default={{ spec.default | pyrepr }},
+{% endif %}
+    )
+{% endfor %}

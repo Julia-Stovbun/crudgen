@@ -1,0 +1,41 @@
+import crud
+from db import get_db
+from fastapi import APIRouter, Depends, HTTPException, status
+from schemas import {{ cfg.entity }}Create, {{ cfg.entity }}Read
+from sqlalchemy.orm import Session
+
+router = APIRouter(prefix="/{{ cfg.table }}", tags=["{{ cfg.entity }}"])
+
+
+@router.get("/", response_model=list[{{ cfg.entity }}Read])
+def list_items(db: Session = Depends(get_db)):
+    return crud.list_items(db)
+
+
+@router.get("/{item_id}", response_model={{ cfg.entity }}Read)
+def get_item(item_id: int, db: Session = Depends(get_db)):
+    item = crud.get_item(db, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    return item
+
+
+@router.post("/", response_model={{ cfg.entity }}Read, status_code=status.HTTP_201_CREATED)
+def create_item(payload: {{ cfg.entity }}Create, db: Session = Depends(get_db)):
+    return crud.create_item(db, payload)
+
+
+@router.put("/{item_id}", response_model={{ cfg.entity }}Read)
+def update_item(item_id: int, payload: {{ cfg.entity }}Create, db: Session = Depends(get_db)):
+    item = crud.get_item(db, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    return crud.update_item(db, item, payload)
+
+
+@router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_item(item_id: int, db: Session = Depends(get_db)):
+    item = crud.get_item(db, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Not found")
+    crud.delete_item(db, item)

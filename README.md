@@ -1,95 +1,28 @@
-# crudgen — Config-driven FastAPI CRUD code generator (Lite)
+# CRUDGen
 
-Generate clean, editable FastAPI building blocks from a small YAML or JSON config.
+CLI tool for generating a small runnable FastAPI CRUD project from a YAML or JSON schema.
 
-No runtime magic.  
-No hidden abstractions.  
-You get plain Python files you can read, own, and modify.
+## Features
 
----
+Generates a SQLAlchemy model, Pydantic schemas, CRUD functions, FastAPI routes, SQLite setup, and an app entry point. Supported field types are `int`, `str`, `bool`, `float`, and `datetime`. One entity with an integer `id` is supported per project.
 
-## What this is
+## Requirements
 
-`crudgen` is a **config-first code generator** for FastAPI projects.
+Python 3.11 or 3.12.
 
-Given a small YAML or JSON config, it generates:
-
-- SQLAlchemy model skeletons
-- Pydantic schema skeletons
-- FastAPI router skeletons
-
-The generated code is **not a framework** and **not a runtime dependency**.  
-It is meant to be copied into your project and edited freely.
-
----
-
-## What Lite generates
-
-From a single config file, Lite generates:
-
-- `models.py` — SQLAlchemy model skeleton
-- `schemas.py` — Pydantic schemas
-- `router.py` — FastAPI router skeleton
-
----
-
-## What Lite intentionally does NOT do
-
-Lite does **not** generate:
-
-- a runnable FastAPI app (`main.py`)
-- database engine or session wiring
-- real CRUD handlers
-- authentication or permissions
-
-Lite is designed to stop at **clean, readable building blocks**.
-
----
-
-## Quickstart
-
-### 1) Install (local / dev)
+## Installation
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -U pip
-pip install -e ".[dev]"
+python -m pip install .
 ```
 
-Verify installation:
+## Usage
 
-```bash
-crudgen --help
-```
-
----
-
-### 2) Generate from example config
-
-```bash
-crudgen examples/user.yaml --out out --overwrite
-```
-
-Result:
-
-```text
-out/
-  models.py
-  schemas.py
-  router.py
-```
-
----
-
-## Example config
-
-`examples/user.yaml`
+Save this as `user.yaml`:
 
 ```yaml
 entity: User
 table: users
-
 fields:
   id:
     type: int
@@ -102,50 +35,33 @@ fields:
     default: true
 ```
 
----
+Generate the project:
 
-## Design principles
+```bash
+crudgen user.yaml --out generated
+```
 
-- Config → Code, not runtime magic
-- Generated code is fully editable
-- No hidden behavior
-- Deterministic output
-- Minimal scope
+JSON configs use the same structure. Existing generated files are protected unless `--overwrite` is passed.
 
-This tool exists to save you from rewriting the same boilerplate again and again.
+## Generated project
 
----
+`generated/` contains `main.py`, `db.py`, `models.py`, `schemas.py`, `crud.py`, `router.py`, and `requirements.txt`.
 
-## Pro version (paid)
+```bash
+cd generated
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload
+```
 
-The Pro version adds:
-
-- runnable FastAPI app (`main.py`)
-- database wiring (SQLite / Postgres)
-- real CRUD endpoints
-- improved typing and defaults
-- optional extras (auth, roles, relations, migrations)
-
-👉 Pro version link: coming soon
-
----
+Open `http://127.0.0.1:8000/docs`. The app uses `app.db` by default. Set `DATABASE_URL` to another SQLite URL to change its location.
 
 ## Development
 
-Run tests:
-
 ```bash
+python -m pip install -e '.[dev]'
 pytest -q
-```
-
-Lint / format:
-
-```bash
 ruff check .
-ruff format .
 ```
-
----
 
 ## License
 

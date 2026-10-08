@@ -1,15 +1,11 @@
-# venv
 .venv/
-
-# python
 __pycache__/
-*.pyc
-
-# build
-dist/
-build/
+*.py[cod]
 *.egg-info/
-
-# macOS
-.DS_Store
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
 out/
+*.db
+.DS_Store

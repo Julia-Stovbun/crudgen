@@ -1,0 +1,13 @@
+from db import engine
+from fastapi import FastAPI
+from models import Base
+from router import router
+
+Base.metadata.create_all(bind=engine)
+app = FastAPI()
+app.include_router(router)
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}
